@@ -9,10 +9,32 @@
           reverse-accumulate-2
           reverse-fold-2
           vector-fold-right-2
-          vector-fold-right)
+          vector-fold-right
+          save
+          restore)
 
   (import
    (chezscheme))
+
+  (define (save something filename)
+    (call-with-output-file filename
+      (lambda (port)
+        (display something port))
+      'replace))
+  
+  (define (restore filename)
+    (call/cc 
+     (lambda (k)
+       (with-exception-handler
+        (lambda (exception) 
+          (if (error? exception)
+              (k #f)
+              (raise exception)))
+        (lambda ()           
+          (call-with-input-file filename
+            (lambda (port)
+              (read port))))))))
+
 
   (define (vector-fold-right function initial vector)
     (let ((vector-length (vector-length vector)))

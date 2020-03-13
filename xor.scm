@@ -14,7 +14,7 @@
   (define xor-network (initialize-network '(2 8 2)))
 
   (time (stochastic-gradient-descent
-         xor-network xor-dataset xor-dataset 2 100 5.0))
+         xor-network xor-dataset xor-dataset 2 1 5.0))
 
   (evaluate xor-network xor-dataset))
 

@@ -17,10 +17,33 @@
           evaluate)
 
   (import (chezscheme)
+          (plot)
           (matrices)
           (utils))
 
   (define-structure (network layers sizes biases weights))
+
+  (define (plot-layers network name)
+    (display (network-layers network))
+    (let ((n 0))
+      (for-each
+       (lambda (layer)
+         (vector-for-each
+          (lambda (node)
+            (let ((len (sqrt (vector-length node)))
+                  (filename (string-append name (number->string n))))
+              (vector->gnuplot-matrix 
+               node
+               filename
+               len)
+              (gnuplot-plot-matrix-to-png 
+               filename
+               (string-append filename ".png")
+               filename
+               len))
+            (set! n (+ n 1)))
+          layer))        
+       (network-weights network))))
 
   (define (initialize-network sizes . opt)
     (let ((initialize (if (null? opt) make-random-matrix (car opt))))
@@ -101,17 +124,22 @@
               (network-weights network) nabla-w)))))
 
   (define stochastic-gradient-descent
-    (lambda (network training-data testing-data minibatch-size epochs eta)
+    (lambda (network training-data testing-data minibatch-size epochs eta . current-epoch)
       (let ((n (vector-length training-data)))
-        (let iter ((e 1) (network network))
+        (let iter ((e (if (null? current-epoch) 1 (car current-epoch))) (network network))
           (display (format "epoch ~s\n" e))
           (let* ((training-data (shuffle-vector training-data))
                  (mini-batches (vector->list-of-vectors training-data minibatch-size))
                  (network
                   (fold-left (lambda (n mini-batch) (train n mini-batch eta))
-                             network mini-batches)))
+                             network mini-batches)))           
+            (save e "epoch")
+            (save network "network")
             (if (not (null? testing-data))
-                (display (format "accuracy: ~s\n" (evaluate network testing-data))))
+                (let ()
+                  (plot-layers network (format "Epoch ~s " e))
+                  (display (format "accuracy: ~s\n" (evaluate network testing-data)))))
+            (collect)
             (if (= e epochs) network (iter (add1 e) network)))))))
 
   (define (feedforward network a)
