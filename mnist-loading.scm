@@ -10,7 +10,7 @@
           load-training-data)
 
   (import (chezscheme)
-          (matrices)
+          (cmatrices)
           (learning))
 
   (define *size-of-the-training-data* 59999)

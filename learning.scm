@@ -18,7 +18,7 @@
 
   (import (chezscheme)
           (plot)
-          (matrices)
+          (cmatrices)
           (utils))
 
   (define-structure (network layers sizes biases weights))
@@ -133,13 +133,12 @@
                  (network
                   (fold-left (lambda (n mini-batch) (train n mini-batch eta))
                              network mini-batches)))           
-            (save e "epoch")
-            (save network "network")
+            ;; (save e "epoch")
+            ;; (save network "network")
             (if (not (null? testing-data))
                 (let ()
-                  (plot-layers network (format "Epoch ~s " e))
-                  (display (format "accuracy: ~s\n" (evaluate network testing-data)))))
-            (collect)
+                  ;; (plot-layers network (format "Epoch ~s " e))
+                  (display (format "accuracy: ~s\n" (evaluate network testing-data)))))           
             (if (= e epochs) network (iter (add1 e) network)))))))
 
   (define (feedforward network a)
