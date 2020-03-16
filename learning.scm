@@ -96,10 +96,10 @@
               (network-weights network) nabla-weights)))))
 
   (define stochastic-gradient-descent
-    (lambda (network training-data testing-data minibatch-size epochs eta . current-epoch)
+    (lambda (network training-data testing-data minibatch-size epochs eta)
       (let ((n (vector-length training-data)))
-        (let iter ((e (if (null? current-epoch) 1 (car current-epoch))) (network network))
-          (display (format "epoch ~s\n" e))
+        (let iter ((e 1) (network network))
+          (display (format "Epoch ~s~n" e))
           (let* ((training-data (shuffle-vector training-data))
                  (mini-batches (vector->list-of-vectors training-data minibatch-size))
                  (network
