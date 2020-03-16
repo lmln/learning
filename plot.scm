@@ -24,17 +24,17 @@
     (string-append "set title \"" title "\";"))
 
   (define (gnuplot-plot-matrix-with-image filename)
-    (string-append 
+    (string-append
      "plot '"
      filename
      "' matrix with image"))
 
-  (define (gnuplot-plot-matrix-to-png 
+  (define (gnuplot-plot-matrix-to-png
            input-file output-file title stride)
     (gnuplot-create-pipe
      (gnuplot-set-output output-file)
      (gnuplot-set-xrange 0 (- stride 1))
-     (gnuplot-set-yrange 0 (- stride 1))   
+     (gnuplot-set-yrange 0 (- stride 1))
      (gnuplot-set-title title)
      (gnuplot-set-terminal-png)
      (gnuplot-plot-matrix-with-image input-file)))
@@ -42,18 +42,18 @@
   (define (vector->gnuplot-matrix vector outputname . opt)
     (call-with-output-file outputname
       (lambda (output)
-        (let ((x 0) (y 0) 
-              (stride (if (null? opt) 
+        (let ((x 0) (y 0)
+              (stride (if (null? opt)
                           (sqrt (vector-length vector))
-                          (car opt))))  
-          (vector-for-each 
+                          (car opt))))
+          (vector-for-each
            (lambda (num)
-             (if (= x stride) 
-                 (begin (display (format "\n") output) 
+             (if (= x stride)
+                 (begin (display (format "\n") output)
                         (set! x 0) (set! y (+ 1 y))))
              (display num output)
              (display " " output)
-             (set! x (+ x 1))) 
+             (set! x (+ x 1)))
            vector)))))
 
   (define (matrix->gnuplot-matrix matrix outputname)
@@ -61,10 +61,31 @@
       (lambda (output)
         (vector-for-each
          (lambda (row)
-           (vector-for-each 
+           (vector-for-each
             (lambda (num)
               (display num output)
-              (display " " output)) 
+              (display " " output))
             row)
-           (display (format "\n") output)) 
-         matrix)))))
+           (display (format "\n") output))
+         matrix))))
+
+  (define (plot-matrices matrices name)
+    (let ((n 0))
+      (for-each
+       (lambda (matrix)
+         (vector-for-each
+          (lambda (node)
+            (let ((len (sqrt (vector-length node)))
+                  (filename (string-append name (number->string n))))
+              (vector->gnuplot-matrix
+               node
+               filename
+               len)
+              (gnuplot-plot-matrix-to-png
+               filename
+               (string-append filename ".png")
+               filename
+               len))
+            (set! n (+ n 1)))
+          matrix))
+       matrices))))

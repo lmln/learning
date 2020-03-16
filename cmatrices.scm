@@ -1,10 +1,10 @@
-(library (cmatrices)  
+(library (cmatrices)
 
-  (export  
+  (export
    initialize-cmatrices
    collect-cmatrices
    display-cmatrix
-   
+
    matrix-set!
    matrix-ref
 
@@ -32,33 +32,33 @@
    get-matrix-count
    box-muller)
 
-  (import           
+  (import
    (chezscheme))
 
   (define shared-library
     (load-shared-object "libcmatrices.so"))
-  
+
   (define-ftype
-    (cmatrix (struct 
+    (cmatrix (struct
               (rows int)
               (columns int)
               (nums (* double)))))
-  
+
   (define make-cmatrix
-    (foreign-procedure "make_matrix" 
+    (foreign-procedure "make_matrix"
                        (int int double)
                        (* cmatrix)))
 
   (define make-random-cmatrix
-    (foreign-procedure "make_random_matrix" 
+    (foreign-procedure "make_random_matrix"
                        (int int)
-                       (* cmatrix)))  
-  
+                       (* cmatrix)))
+
   (define free-cmatrix
-    (foreign-procedure "free_matrix" 
+    (foreign-procedure "free_matrix"
                        ((* cmatrix))
                        void))
-  
+
   (define cmatrix*cmatrix->cmatrix
     (lambda (str)
       (foreign-procedure str ((* cmatrix) (* cmatrix)) (* cmatrix))))
@@ -85,103 +85,102 @@
     (cmatrix*cmatrix->cmatrix "mul"))
 
   (define cscale
-    (foreign-procedure "scale" 
+    (foreign-procedure "scale"
                        (double (* cmatrix))
                        (* cmatrix)))
 
   (define cscale!
-    (foreign-procedure "destructive_scale" 
+    (foreign-procedure "destructive_scale"
                        (double (* cmatrix))
                        (* cmatrix)))
 
   (define csigmoid
-    (foreign-procedure "sigmoid" 
+    (foreign-procedure "sigmoid"
                        ((* cmatrix))
                        (* cmatrix)))
 
   (define csigmoid!
-    (foreign-procedure "destructive_sigmoid" 
+    (foreign-procedure "destructive_sigmoid"
                        ((* cmatrix))
                        (* cmatrix)))
 
   (define csigmoid-derivative
-    (foreign-procedure "sigmoid_derivative" 
+    (foreign-procedure "sigmoid_derivative"
                        ((* cmatrix))
                        (* cmatrix)))
 
   (define csigmoid-derivative!
-    (foreign-procedure "destructive_sigmoid_derivative" 
+    (foreign-procedure "destructive_sigmoid_derivative"
                        ((* cmatrix))
                        (* cmatrix)))
 
   (define ctranspose
-    (foreign-procedure "transpose" 
+    (foreign-procedure "transpose"
                        ((* cmatrix))
                        (* cmatrix)))
 
   (define display-cmatrix
-    (foreign-procedure "display_matrix" 
+    (foreign-procedure "display_matrix"
                        ((* cmatrix))
                        void))
 
   (define cmatrix-set!
-    (foreign-procedure "matrix_set" 
+    (foreign-procedure "matrix_set"
                        ((* cmatrix) int int double)
                        void))
 
   (define matrix-set! cmatrix-set!)
 
   (define cmatrix-ref
-    (foreign-procedure "matrix_ref" 
+    (foreign-procedure "matrix_ref"
                        ((* cmatrix) int int)
                        double))
 
   (define matrix-ref cmatrix-ref)
 
   (define cmatrix-columns
-    (foreign-procedure "matrix_columns" 
+    (foreign-procedure "matrix_columns"
                        ((* cmatrix))
                        int))
 
   (define matrix-columns cmatrix-columns)
 
   (define cmatrix-rows
-    (foreign-procedure "matrix_rows" 
+    (foreign-procedure "matrix_rows"
                        ((* cmatrix))
                        int))
 
   (define matrix-rows cmatrix-rows)
-  
+
   (define cmatrix-max-column
-    (foreign-procedure "matrix_max_column" 
+    (foreign-procedure "matrix_max_column"
                        ((* cmatrix))
                        int))
 
   (define cmatrix-max-row
-    (foreign-procedure "matrix_max_row" 
+    (foreign-procedure "matrix_max_row"
                        ((* cmatrix))
                        int))
 
   (define matrix-max-row cmatrix-max-row)
 
   (define cmatrix-max-value
-    (foreign-procedure "matrix_max_value" 
+    (foreign-procedure "matrix_max_value"
                        ((* cmatrix))
                        int))
 
   (define matrix-max-value cmatrix-max-value)
 
-  (define v-of-v->matrix
-    (lambda (m)
-      (let* ([nr (vector-length m)]
-             [nc (vector-length (vector-ref m 0))]
-             [r (make-matrix nr nc 0.0)])
-        (do ([i 0 (+ i 1)])
-            ((= i nr) r)
-          (do ([j 0 (+ j 1)])
-              ((= j nc))
-            (cmatrix-set! r i j (vector-ref (vector-ref  m i) j))))
-        r)))
+  (define (v-of-v->matrix m)
+    (let* ([nr (vector-length m)]
+           [nc (vector-length (vector-ref m 0))]
+           [r (make-matrix nr nc 0.0)])
+      (do ([i 0 (+ i 1)])
+          ((= i nr) r)
+        (do ([j 0 (+ j 1)])
+            ((= j nc))
+          (cmatrix-set! r i j (vector-ref (vector-ref  m i) j))))
+      r))
 
   ;; (define cmatrix->matrix
   ;;   (lambda (fm)
@@ -194,8 +193,8 @@
   ;;             ((= j nc))
   ;;           (matrix-set! r i j (cmatrix-ref fm i j))))
   ;;       r)))
-  
-  
+
+
   (define cmatrix-guardian (make-guardian))
 
   (define matrix-count 0)
@@ -204,7 +203,7 @@
     (lambda (rows columns value)
       (let ([x (make-cmatrix rows columns value)])
         (cmatrix-guardian x)
-        ;;(set! matrix-count (+ matrix-count 1))                  
+        ;;(set! matrix-count (+ matrix-count 1))
         x)))
 
   ;; (define make-matrix-with-value
@@ -216,66 +215,57 @@
   (define make-random-matrix
     (lambda (rows columns)
       (let ([x (make-random-cmatrix rows columns)])
-        ;;(set! matrix-count (+ matrix-count 1))                  
-        (cmatrix-guardian x)
-        x)))  
-  
-  (define matrix-hadamard
-    (lambda (m n)
-      (let ((x (chadamard m n)))
+        ;;(set! matrix-count (+ matrix-count 1))
         (cmatrix-guardian x)
         x)))
 
-  (define matrix-sum
-    (lambda (m n)
-      (let ((x (csum m n)))
-        (cmatrix-guardian x)
-        x)))
-  
-  (define matrix-dif
-    (lambda (m n)
-      (let ((x (cdif m n)))
-        (cmatrix-guardian x)
-        x)))
-  
-  (define matrix-mul
-    (lambda (m n)
-      (let ((x (cmul m n)))
-        (cmatrix-guardian x)
-        ;;(set! matrix-count (+ matrix-count 1))                  
-        x)))
+  (define (matrix-hadamard m n)
+    (let ((x (chadamard m n)))
+      (cmatrix-guardian x)
+      x))
 
-  (define matrix-scale
-    (lambda (m n)
-      (let ((x (cscale m n)))
-        (cmatrix-guardian x)
-        x)))
+  (define (matrix-sum m n)
+    (let ((x (csum m n)))
+      (cmatrix-guardian x)
+      x))
 
-  (define matrix-sigmoid
-    (lambda (m)
-      (let ((x (csigmoid m)))
-        (cmatrix-guardian x)
-        x)))
+  (define (matrix-dif m n)
+    (let ((x (cdif m n)))
+      (cmatrix-guardian x)
+      x))
 
-  (define matrix-sigmoid-derivative
-    (lambda (m)
-      (let ((x (csigmoid-derivative m)))
-        (cmatrix-guardian x)
-        x)))
+  (define (matrix-mul m n)
+    (let ((x (cmul m n)))
+      (cmatrix-guardian x)
+      ;;(set! matrix-count (+ matrix-count 1))
+      x))
 
-  (define matrix-transpose
-    (lambda (m)
-      (let ((x (ctranspose m)))
-        (cmatrix-guardian x)
-        x)))
-  
+  (define (matrix-scale m n)
+    (let ((x (cscale m n)))
+      (cmatrix-guardian x)
+      x))
+
+  (define (matrix-sigmoid m)
+    (let ((x (csigmoid m)))
+      (cmatrix-guardian x)
+      x))
+
+  (define (matrix-sigmoid-derivative m)
+    (let ((x (csigmoid-derivative m)))
+      (cmatrix-guardian x)
+      x))
+
+  (define (matrix-transpose m)
+    (let ((x (ctranspose m)))
+      (cmatrix-guardian x)
+      x))
+
   (define T matrix-transpose)
 
-  (define make-one-hot-vector
-    (lambda (n max)
-      (let ((m (make-matrix max 1 0.0))) 
-        (cmatrix-set! m n 0 1.0)
-        m)))
+  (define (make-one-hot-vector n max)
+    (let ((m (make-matrix max 1 0.0)))
+      (cmatrix-set! m n 0 1.0)
+      m))
 
   (define (collect-cmatrices)
     (let f ()
@@ -284,13 +274,12 @@
               (free-cmatrix x)
               (f)))))
 
-  (define initialize-cmatrices
-    (lambda ()        
-      (collect-request-handler
-       (lambda ()
-         (collect)
-         (collect-cmatrices)))))
-  
+  (define (initialize-cmatrices)
+    (collect-request-handler
+     (lambda ()
+       (collect)
+       (collect-cmatrices))))
+
   (define (get-matrix-count)
     matrix-count)
 
@@ -298,10 +287,10 @@
     (make-matrix (matrix-rows x) (matrix-columns x) 0.0))
 
   (define box-muller
-    (foreign-procedure "box_muller" 
+    (foreign-procedure "box_muller"
                        ()
                        double))
-   
+
   ;; to initialize the gc
   (define initialization
     (initialize-cmatrices)))

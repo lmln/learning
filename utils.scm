@@ -21,16 +21,16 @@
       (lambda (port)
         (display something port))
       'replace))
-  
+
   (define (restore filename)
-    (call/cc 
+    (call/cc
      (lambda (k)
        (with-exception-handler
-        (lambda (exception) 
+        (lambda (exception)
           (if (error? exception)
               (k #f)
               (raise exception)))
-        (lambda ()           
+        (lambda ()
           (call-with-input-file filename
             (lambda (port)
               (read port))))))))
@@ -106,7 +106,6 @@
              (vector-set! v i t))))
        v))
 
-
   (define (last list) ; last element in the list
     (cond
      ((null? list) '())
@@ -128,4 +127,3 @@
      ((= (car s) (vector-length (car lov))))
      (else
       (list-of-vectors-shape (cdr lov) (cdr s))))))
-

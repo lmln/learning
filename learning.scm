@@ -5,45 +5,17 @@
           cost-derivative
           stochastic-gradient-descent
 
-          make-network
-          network?
-          network-layers
-          network-sizes
-          network-biases
-          network-weights
-
           initialize-network
           feedforward
           evaluate)
 
   (import (chezscheme)
-          (plot)
           (cmatrices)
           (utils))
 
   (define-structure (network layers sizes biases weights))
 
-  (define (plot-layers network name)
-    (display (network-layers network))
-    (let ((n 0))
-      (for-each
-       (lambda (layer)
-         (vector-for-each
-          (lambda (node)
-            (let ((len (sqrt (vector-length node)))
-                  (filename (string-append name (number->string n))))
-              (vector->gnuplot-matrix 
-               node
-               filename
-               len)
-              (gnuplot-plot-matrix-to-png 
-               filename
-               (string-append filename ".png")
-               filename
-               len))
-            (set! n (+ n 1)))
-          layer))        
-       (network-weights network))))
+  (define-structure (sample input output))
 
   (define (initialize-network sizes . opt)
     (let ((initialize (if (null? opt) make-random-matrix (car opt))))
@@ -99,29 +71,29 @@
 
   (define (train network mini-batch eta)
     (let ((batch-length (vector-length mini-batch)))
-      ;;(spin)
-      (let-values (((nabla-b nabla-w)
+      (let-values (((nabla-biases nabla-weights)
                     (vector-fold-right-2
-                     (lambda (nabla-b nabla-w pair)
+                     (lambda (nabla-biases nabla-weights sample)
                        (let-values
-                           (((delta-nabla-b delta-nabla-w)
-                             (backpropagate network (vector-ref pair 1)
-                                            (vector-ref pair 0))))
+                           (((delta-nabla-biases delta-nabla-weights)
+                             (backpropagate network
+                                            (sample-input sample)
+                                            (sample-output sample))))
                          (values
-                          (map matrix-sum nabla-b delta-nabla-b)
-                          (map matrix-sum nabla-w delta-nabla-w))))
+                          (map matrix-sum nabla-biases delta-nabla-biases)
+                          (map matrix-sum nabla-weights delta-nabla-weights))))
                      (map matrix-zeros-like (network-biases network))
                      (map matrix-zeros-like (network-weights network))
                      mini-batch)))
         (make-network
          (network-sizes network)
          (network-layers network)
-         (map (lambda (bias nb)
-                (matrix-dif bias (matrix-scale (/ eta batch-length) nb)))
-              (network-biases network) nabla-b)
-         (map (lambda (weight nw)
-                (matrix-dif weight (matrix-scale (/ eta batch-length) nw)))
-              (network-weights network) nabla-w)))))
+         (map (lambda (bias nabla-bias)
+                (matrix-dif bias (matrix-scale (/ eta batch-length) nabla-bias)))
+              (network-biases network) nabla-biases)
+         (map (lambda (weight nabla-weight)
+                (matrix-dif weight (matrix-scale (/ eta batch-length) nabla-weight)))
+              (network-weights network) nabla-weights)))))
 
   (define stochastic-gradient-descent
     (lambda (network training-data testing-data minibatch-size epochs eta . current-epoch)
@@ -132,13 +104,11 @@
                  (mini-batches (vector->list-of-vectors training-data minibatch-size))
                  (network
                   (fold-left (lambda (n mini-batch) (train n mini-batch eta))
-                             network mini-batches)))           
-            ;; (save e "epoch")
-            ;; (save network "network")
+                             network mini-batches)))
             (if (not (null? testing-data))
                 (let ()
                   ;; (plot-layers network (format "Epoch ~s " e))
-                  (display (format "accuracy: ~s\n" (evaluate network testing-data)))))           
+                  (display (format "accuracy: ~s\n" (evaluate network testing-data)))))
             (if (= e epochs) network (iter (add1 e) network)))))))
 
   (define (feedforward network a)
@@ -147,12 +117,12 @@
                a
                (network-biases network) (network-weights network)))
 
-  (define (evaluate network test-data)
+  (define (evaluate network testing-data)
     (/ (vector-fold-right
-        (lambda (previous pair)
+        (lambda (previous sample)
           (+ previous
-             (if (= (matrix-max-row (feedforward
-                                     network (vector-ref pair 1)))
-                    (matrix-max-row (vector-ref pair 0))) 1 0))) 0 test-data)
-       (vector-length test-data)
-       1.0)))
+             (if (= (matrix-max-row (feedforward network (sample-input sample)))
+                    (matrix-max-row (sample-output sample)))
+                 1 0)))
+        0 testing-data)
+       (vector-length testing-data) 1.0)))
