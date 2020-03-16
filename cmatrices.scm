@@ -35,8 +35,10 @@
   (import
    (chezscheme))
 
-  (define shared-library
-    (load-shared-object "libcmatrices.so"))
+  (define shared-library    
+    (case (machine-type)
+      ((i3le ti3le a6le ta6le) (load-shared-object "./libcmatrices.so"))
+      ((i3nt ti3nt a6nt ta6nt) (load-shared-object "libcmatrices.so"))))
 
   (define-ftype
     (cmatrix (struct

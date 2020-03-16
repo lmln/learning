@@ -27,6 +27,6 @@
                  ))))
 
     (display (format "test data accuracy: ~s\n"
-                     (evaluate trained-network test-data)))
+                     (evaluate trained-network testing-data)))
 
     trained-network))
