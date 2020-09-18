@@ -56,6 +56,21 @@
                        (int int)
                        (* cmatrix)))
 
+  (define make-random-uniform-cmatrix
+    (foreign-procedure "make_random_uniform_matrix"
+                      (int int)
+                      (* cmatrix)))
+
+  (define make-random-scaled-cmatrix
+    (foreign-procedure "make_random_scaled_matrix"
+                       (int int)
+                       (* cmatrix)))
+
+  (define make-random-xavier-cmatrix
+    (foreign-procedure "make_random_xavier_matrix"
+                       (int int)
+                       (* cmatrix)))
+
   (define free-cmatrix
     (foreign-procedure "free_matrix"
                        ((* cmatrix))
@@ -214,10 +229,28 @@
   ;;       (cmatrix-guardian x)
   ;;       x)))
 
+;;  (define make-random-matrix
+;;    (lambda (rows columns)
+;;      (let ([x (make-random-cmatrix rows columns)])
+;;        ;;(set! matrix-count (+ matrix-count 1))
+;;        (cmatrix-guardian x)
+;;        x)))
+
+;;  (define make-random-matrix
+;;    (lambda (rows columns)
+;;      (let ([x (make-random-uniform-cmatrix rows columns)])
+;;        (cmatrix-guardian x)
+;;        x)))
+
+;;  (define make-random-matrix
+;;    (lambda (rows columns)
+;;      (let ([x (make-random-scaled-cmatrix rows columns)])
+;;        (cmatrix-guardian x)
+;;        x)))
+
   (define make-random-matrix
     (lambda (rows columns)
-      (let ([x (make-random-cmatrix rows columns)])
-        ;;(set! matrix-count (+ matrix-count 1))
+      (let ([x (make-random-xavier-cmatrix rows columns)])
         (cmatrix-guardian x)
         x)))
 

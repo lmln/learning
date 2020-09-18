@@ -99,7 +99,7 @@
     (lambda (network training-data testing-data minibatch-size epochs eta)
       (let ((n (vector-length training-data)))
         (let iter ((e 1) (network network))
-          (display (format "Epoch ~s~n" e))
+          ;;(display (format "~s " e))
           (let* ((training-data (shuffle-vector training-data))
                  (mini-batches (vector->list-of-vectors training-data minibatch-size))
                  (network
@@ -108,7 +108,7 @@
             (if (not (null? testing-data))
                 (let ()
                   ;; (plot-layers network (format "Epoch ~s " e))
-                  (display (format "accuracy: ~s\n" (evaluate network testing-data)))))
+                  (display (format "~s " (evaluate network testing-data)))))
             (if (= e epochs) network (iter (add1 e) network)))))))
 
   (define (feedforward network a)

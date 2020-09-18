@@ -155,9 +155,15 @@
         (* R (cos theta)))))
 
   ;; with normal distribution
+  ;; (define make-random-matrix
+  ;;   (lambda (j k)
+  ;;     (matrix-map (lambda (x) (box-muller)) (make-matrix j k))))
+
+
   (define make-random-matrix
     (lambda (j k)
-      (matrix-map (lambda (x) (box-muller)) (make-matrix j k))))
+      (matrix-map (lambda (x) (- (random 4.0) 2.0)))))  
+
 
   (define (matrix-zeros-like x)
     (make-matrix (matrix-rows x) (matrix-columns x) 0.0))

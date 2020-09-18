@@ -37,7 +37,7 @@
         (unless (= length count)
           (vector-set! vector count (get-sample images labels dimension))
           (iterate (+ 1 count))))
-      (display (format "Data set loaded.~n"))
+      ;;(display (format "Data set loaded.~n"))
       vector))
 
   (define testing-images
@@ -58,7 +58,8 @@
       (get-u32 testing-images)
       (get-u32 testing-images)
       (get-u32 testing-images)
-      (display (format "Test headers skipped.~n"))))
+      ;;(display (format "Test headers skipped.~n"))
+      ))
 
   (define (load-testing-data)
     (let ((testing-data (make-vector *size-of-the-testing-data*)))
@@ -90,7 +91,8 @@
       (get-u32 training-images)
       (get-u32 training-images)
       (get-u32 training-images)
-      (display (format "Headers skipped.~n"))))
+      ;;(display (format "Headers skipped.~n"))
+      ))
 
   (define (load-training-data)
     (let ((training-data (make-vector *size-of-the-training-data*)))

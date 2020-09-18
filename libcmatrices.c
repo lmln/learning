@@ -73,6 +73,26 @@ free_matrix(struct matrix * matrix)
 }
 
 EXPORT double
+random_one()
+{
+  if (!is_srand_initialized)
+    {
+      srand(time(NULL));
+      is_srand_initialized = 1;
+    }
+
+  double u = (double) rand() / RAND_MAX;
+
+  if (u == 0) {
+    return random_one();
+  }
+  
+  return u;
+}
+
+
+
+EXPORT double
 box_muller()
 {
   if (!is_srand_initialized)
@@ -91,7 +111,7 @@ box_muller()
   double R = sqrt(-2.0 * log(u1));
   double theta = 2 * M_PI * u2;
 
-  double ret = (cos(theta) * R);
+  //double ret = (cos(theta) * R);
 
   return (cos(theta) * R);
 }
@@ -111,6 +131,60 @@ make_random_matrix(size_t rows, size_t columns)
 
   return new_matrix;
 }
+
+EXPORT struct matrix * 
+make_random_uniform_matrix(size_t rows, size_t columns)
+{
+ size_t s = rows * columns;
+
+  struct matrix * new_matrix = malloc(sizeof(struct matrix));
+  new_matrix->nums = malloc(sizeof(double) * s);
+  new_matrix->rows = rows;
+  new_matrix->columns = columns;
+
+  for (size_t i = 0; i < s; i++)
+    new_matrix->nums[i] = ((random_one() * 2) - 1);
+
+  return new_matrix;
+} 
+
+EXPORT struct matrix * 
+make_random_scaled_matrix(size_t rows, size_t columns)
+{
+ size_t s = rows * columns;
+
+  struct matrix * new_matrix = malloc(sizeof(struct matrix));
+  new_matrix->nums = malloc(sizeof(double) * s);
+  new_matrix->rows = rows;
+  new_matrix->columns = columns;
+
+  for (size_t i = 0; i < s; i++)
+    new_matrix->nums[i] = ((random_one() * 2) - 1) * sqrt(1.0 / rows);
+
+  return new_matrix;
+} 
+
+EXPORT struct matrix * 
+make_random_xavier_matrix(size_t rows, size_t columns)
+{
+ size_t s = rows * columns;
+
+  struct matrix * new_matrix = malloc(sizeof(struct matrix));
+  new_matrix->nums = malloc(sizeof(double) * s);
+  new_matrix->rows = rows;
+  new_matrix->columns = columns;
+
+  for (size_t i = 0; i < s; i++)
+    new_matrix->nums[i] = ((random_one() * 2) - 1) * sqrt(6.0 / (rows + columns)) ;
+
+  return new_matrix;
+} 
+
+
+
+
+
+
 
 EXPORT void
 matrix_set(struct matrix * matrix, size_t i, size_t j, double value)

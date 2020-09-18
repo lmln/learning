@@ -13,20 +13,20 @@
   ;; (collect-generation-radix 1000000)
 
   ;; try to continue from saved file
-  (let* ((network (initialize-network '(784 30 10)))
+  (let* ((network (initialize-network '(784 30 30 10)))
          (training-data (load-training-data))
          (testing-data (load-testing-data))
+         (minibatch-size (string->number (cadr (command-line))))  ;; 10
+         (epochs (string->number (caddr (command-line)))) ;; 2
+         (learning-rate (string->number (cadddr (command-line)))) ;; 3.0
          (trained-network
           (time (stochastic-gradient-descent
                  network
                  training-data
                  testing-data
-                 10  ;; minibatch-size
-                 5   ;; epochs
-                 3.0 ;; learning  rate
+                 minibatch-size
+                 epochs
+                 learning-rate
                  ))))
-
-    (display (format "test data accuracy: ~s\n"
-                     (evaluate trained-network testing-data)))
 
     trained-network))
