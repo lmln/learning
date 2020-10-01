@@ -1,6 +1,6 @@
 /*
    Compile with:
-   gcc -shared -fPIC fmatrices.c -o fmatrices.o -O3
+   gcc -shared -fPIC libcmatrices.c -o libcmatrices.o -O3
 
    Or:
    cl -c -DWIN32 libcmatrices.c /O2

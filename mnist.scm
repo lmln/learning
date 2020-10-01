@@ -6,6 +6,8 @@
           (utils)
           (chezscheme))
 
+  (if (not (= (length (command-line)) 4)) (error 'mnist "Too few arguments"))
+
   ;; enlarge the allocate block each time and avoid collecting frequently
   ;; -- it speeds things up when we are using native matrices
 

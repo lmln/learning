@@ -36,11 +36,14 @@
       (cond ((or (null? biases) (null? weights))
              (values zs activations))
             (else
-             (let* ((z (matrix-sum (matrix-mul (car weights) activation) (car biases)))
+             (let* ((z (matrix-sum (matrix-mul (car weights) 
+                                               activation) 
+                                   (car biases)))
                     (new-activation (matrix-sigmoid z)))
                (traverse-network (cdr biases)
                                  (cdr weights)
-                                 new-activation (cons new-activation activations)
+                                 new-activation 
+                                 (cons new-activation activations)
                                  (cons z zs)))))))
 
   (define (cost-derivative output-activations y)
@@ -56,7 +59,8 @@
                (matrix-sigmoid-derivative (car zs))))
              (delta-nabla-biases (list delta))
              (delta-nabla-weights
-              (list (matrix-mul delta (matrix-transpose (cadr activations)))))
+              (list (matrix-mul delta 
+                                (matrix-transpose (cadr activations)))))
              (weights (reverse (cdr (network-weights network))))
              (zs (cdr zs))
              (activations (cddr activations)))
@@ -64,9 +68,11 @@
          delta-nabla-biases delta-nabla-weights
          (lambda (weight z activation)
            (set! delta (matrix-hadamard
-                        (matrix-mul (matrix-transpose weight) delta)
+                        (matrix-mul (matrix-transpose weight) 
+                                    delta)
                         (matrix-sigmoid-derivative z)))
-           (values delta (matrix-mul delta (matrix-transpose activation))))
+           (values delta (matrix-mul delta 
+                                     (matrix-transpose activation))))
          weights zs activations))))
 
   (define (train network mini-batch eta)
@@ -101,7 +107,8 @@
         (let iter ((e 1) (network network))
           ;;(display (format "~s " e))
           (let* ((training-data (shuffle-vector training-data))
-                 (mini-batches (vector->list-of-vectors training-data minibatch-size))
+                 (mini-batches (vector->list-of-vectors training-data 
+                                                        minibatch-size))
                  (network
                   (fold-left (lambda (n mini-batch) (train n mini-batch eta))
                              network mini-batches)))
@@ -121,7 +128,8 @@
     (/ (vector-fold-right
         (lambda (previous sample)
           (+ previous
-             (if (= (matrix-max-row (feedforward network (sample-input sample)))
+             (if (= (matrix-max-row (feedforward network 
+                                                 (sample-input sample)))
                     (matrix-max-row (sample-output sample)))
                  1 0)))
         0 testing-data)
